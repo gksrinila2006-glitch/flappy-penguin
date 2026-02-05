@@ -401,7 +401,8 @@
             
             <div class="controls">
                 <h3>🎮 How to Play</h3>
-                <p><strong>SPACE</strong> or <strong>CLICK/TAP</strong> - Flap to fly</p>
+                <p><strong>SPACE</strong> or <strong>ENTER</strong> - Flap to fly</p>
+                <p><strong>CLICK/TAP</strong> - Flap (Mobile)</p>
                 <p><strong>R</strong> - Restart game</p>
                 <p><strong>ESC</strong> - Back to menu</p>
             </div>
@@ -448,7 +449,8 @@
             <div class="leaderboard" id="leaderboard">
                 <div class="leaderboard-item">No scores yet! Be the first!</div>
             </div>
-            <p style="margin-top: 20px; font-size: 18px; font-weight: bold;">PRESS SPACE TO START</p>
+            <p style="margin-top: 20px; font-size: 18px; font-weight: bold;">PRESS SPACE OR ENTER TO START</p>
+            <p style="font-size: 14px; margin-top: 10px; opacity: 0.8;">🔘 TAP SCREEN or 🎮 Press SPACE/ENTER to FLAP</p>
             <button onclick="changePlayer()">👤 Change Name</button>
             <button onclick="window.location.reload()">❌ Quit</button>
         </div>
@@ -461,7 +463,7 @@
             <p id="finalScoreText" style="font-size: 24px; color: #333; margin-bottom: 10px;">Score: 0</p>
             <p id="livesLeftText" style="font-size: 18px; color: #333; margin-bottom: 20px;">Lives Left: 0</p>
             <p id="highScoreMessage"></p>
-            <button id="continueBtn" onclick="continueGame()" style="display:none;">▶️ Continue (SPACE)</button>
+            <button id="continueBtn" onclick="continueGame()" style="display:none;">▶️ Continue (SPACE/ENTER)</button>
             <button id="restartBtn" onclick="restartGame()" style="display:none;">🔄 Restart (R)</button>
             <button onclick="goToMenu()">🏠 Back to Menu (ESC)</button>
         </div>
@@ -850,7 +852,8 @@
         let gameStartedBySpace = false;
 
         document.addEventListener('keydown', (e) => {
-            if (e.code === 'Space') {
+            // Accept both Space and Enter keys
+            if (e.code === 'Space' || e.code === 'Enter' || e.key === 'Enter') {
                 e.preventDefault();
                 if (gameState === 'startScreen' && !gameStartedBySpace) {
                     gameStartedBySpace = true;
@@ -876,7 +879,7 @@
         });
 
         // Touch controls for mobile
-        canvas.addEventListener('click', () => {
+        const handleTap = () => {
             if (gameState === 'startScreen' && !gameStartedBySpace) {
                 gameStartedBySpace = true;
                 beginGame();
@@ -887,6 +890,12 @@
                 continueGame();
                 gameStarted = true;
             }
+        };
+        
+        canvas.addEventListener('click', handleTap);
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            handleTap();
         });
 
         // Focus input on load
