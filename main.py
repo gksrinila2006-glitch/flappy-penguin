@@ -21,8 +21,8 @@ GREEN = (34, 139, 34)
 LIGHT_BLUE = (135, 206, 235)
 
 # Physics constants
-GRAVITY = 0.2
-FLAP_STRENGTH = -6
+GRAVITY = 0.1
+FLAP_STRENGTH = -4
 PIPE_GAP = 160
 PIPE_WIDTH = 52
 PIPE_VELOCITY_START = -2.5
@@ -88,8 +88,8 @@ class Bird:
         self.x = x
         self.y = y
         self.velocity = 0
-        self.width = 34
-        self.height = 24
+        self.width = 24
+        self.height = 20
         self.alive = True
     
     def flap(self):
@@ -136,17 +136,34 @@ class Bird:
 class Pipe:
     """Handles pipe objects that the bird must avoid"""
     
-    def __init__(self, x, pipe_velocity):
+    def __init__(self, x, pipe_velocity, reversed_gap=False):
         self.x = x
         self.width = PIPE_WIDTH
         self.gap = PIPE_GAP
         self.pipe_velocity = pipe_velocity
+        self.reversed_gap = reversed_gap
         
-        # Randomly generate pipe height
-        min_height = 50
-        max_height = SCREEN_HEIGHT - 50 - self.gap - 50
-        self.top_height = random.randint(min_height, max_height)
-        self.bottom_y = self.top_height + self.gap
+        # Generate random gap position with guaranteed passable space
+        # The gap is always PIPE_GAP pixels tall
+        # Calculate valid range for gap start position
+        min_gap_pos = 50
+        max_gap_pos = SCREEN_HEIGHT - 50 - self.gap - 50
+        gap_position = random.randint(min_gap_pos, max_gap_pos)
+        
+        if reversed_gap:
+            # Reversed: larger portion on top, smaller on bottom (inverted pattern)
+            # Create gap from bottom up
+            self.bottom_pipe_height = gap_position
+            self.gap_start = gap_position
+            self.gap_end = gap_position + self.gap
+            self.top_pipe_height = SCREEN_HEIGHT - 50 - self.gap_end
+        else:
+            # Normal: smaller portion on top, larger on bottom
+            # Create gap in the middle
+            self.top_pipe_height = gap_position
+            self.gap_start = gap_position
+            self.gap_end = gap_position + self.gap
+            self.bottom_pipe_height = SCREEN_HEIGHT - 50 - self.gap_end
         
         self.scored = False  # Track if player has passed this pipe
     
@@ -155,30 +172,44 @@ class Pipe:
         self.x += self.pipe_velocity
     
     def draw(self, surface):
-        """Draw top and bottom pipes"""
-        # Top pipe
-        pygame.draw.rect(surface, GREEN, (self.x, 0, self.width, self.top_height))
-        # Bottom pipe
-        pygame.draw.rect(surface, GREEN, (self.x, self.bottom_y, self.width, SCREEN_HEIGHT - self.bottom_y - 50))
-        
-        # Add pipe outline
-        pygame.draw.rect(surface, (0, 100, 0), (self.x, 0, self.width, self.top_height), 3)
-        pygame.draw.rect(surface, (0, 100, 0), (self.x, self.bottom_y, self.width, SCREEN_HEIGHT - self.bottom_y - 50), 3)
+        """Draw top and bottom pipes with guaranteed gap"""
+        if self.reversed_gap:
+            # Reversed: bottom pipe, gap, top pipe
+            # Draw bottom pipe
+            pygame.draw.rect(surface, GREEN, (self.x, SCREEN_HEIGHT - 50 - self.bottom_pipe_height, self.width, self.bottom_pipe_height))
+            pygame.draw.rect(surface, (0, 100, 0), (self.x, SCREEN_HEIGHT - 50 - self.bottom_pipe_height, self.width, self.bottom_pipe_height), 3)
+            
+            # Draw top pipe
+            pygame.draw.rect(surface, GREEN, (self.x, 0, self.width, self.top_pipe_height))
+            pygame.draw.rect(surface, (0, 100, 0), (self.x, 0, self.width, self.top_pipe_height), 3)
+        else:
+            # Normal: top pipe, gap, bottom pipe
+            # Draw top pipe
+            pygame.draw.rect(surface, GREEN, (self.x, 0, self.width, self.top_pipe_height))
+            pygame.draw.rect(surface, (0, 100, 0), (self.x, 0, self.width, self.top_pipe_height), 3)
+            
+            # Draw bottom pipe
+            pygame.draw.rect(surface, GREEN, (self.x, self.gap_end, self.width, self.bottom_pipe_height))
+            pygame.draw.rect(surface, (0, 100, 0), (self.x, self.gap_end, self.width, self.bottom_pipe_height), 3)
     
     def off_screen(self):
         """Check if pipe is off the left side of screen"""
         return self.x + self.width < 0
     
     def check_collision(self, bird):
-        """Check if bird collides with pipe"""
-        # Bird rectangle
-        bird_rect = pygame.Rect(bird.x, bird.y, bird.width, bird.height)
+        """Check if bird collides with pipe - improved accuracy"""
+        # Make collision box tighter around the actual penguin sprite
+        bird_rect = pygame.Rect(bird.x + 5, bird.y + 2, 20, 20)
         
-        # Top pipe rectangle
-        top_pipe_rect = pygame.Rect(self.x, 0, self.width, self.top_height)
-        
-        # Bottom pipe rectangle
-        bottom_pipe_rect = pygame.Rect(self.x, self.bottom_y, self.width, SCREEN_HEIGHT - self.bottom_y - 50)
+        # Create pipe collision rectangles
+        if self.reversed_gap:
+            # Reversed: top and bottom portions
+            top_pipe_rect = pygame.Rect(self.x, 0, self.width, self.top_pipe_height)
+            bottom_pipe_rect = pygame.Rect(self.x, SCREEN_HEIGHT - 50 - self.bottom_pipe_height, self.width, self.bottom_pipe_height)
+        else:
+            # Normal: top and bottom portions
+            top_pipe_rect = pygame.Rect(self.x, 0, self.width, self.top_pipe_height)
+            bottom_pipe_rect = pygame.Rect(self.x, self.gap_end, self.width, self.bottom_pipe_height)
         
         # Check collision
         if bird_rect.colliderect(top_pipe_rect) or bird_rect.colliderect(bottom_pipe_rect):
@@ -195,6 +226,8 @@ class Game:
         self.lives = 3
         self.total_lives = 3
         self.game_ended = False
+        self.heart_break_animation = False
+        self.heart_break_timer = 0
         self.reset()
     
     def reset(self):
@@ -210,8 +243,18 @@ class Game:
     
     def spawn_pipe(self):
         """Create a new pipe"""
-        pipe = Pipe(SCREEN_WIDTH, self.pipe_velocity)
+        # Use reversed gap (more challenging) after 15 points
+        reversed_gap = self.score >= 15 and random.random() < 0.6  # 60% chance of reversed pipes after 15
+        pipe = Pipe(SCREEN_WIDTH, self.pipe_velocity, reversed_gap=reversed_gap)
         self.pipes.append(pipe)
+    
+    def live_lost(self):
+        """Handle when a live is lost - with heart break animation"""
+        self.lives -= 1
+        self.heart_break_animation = True
+        self.heart_break_timer = 30  # Animation frames
+        if self.lives <= 0:
+            self.game_ended = True
     
     def update(self):
         """Update game state"""
@@ -224,9 +267,7 @@ class Game:
         # Check if bird is alive
         if not self.bird.alive:
             self.game_over = True
-            self.lives -= 1
-            if self.lives <= 0:
-                self.game_ended = True
+            self.live_lost()
         
         # Spawn pipes
         self.pipe_spawn_timer += 1
@@ -241,21 +282,30 @@ class Game:
             # Check collision
             if pipe.check_collision(self.bird):
                 self.game_over = True
-                self.lives -= 1
-                if self.lives <= 0:
-                    self.game_ended = True
+                self.live_lost()
             
             # Check if bird passed pipe
             if not pipe.scored and pipe.x + pipe.width < self.bird.x:
                 pipe.scored = True
                 self.score += 1
-                # Increase difficulty slightly
-                self.pipe_velocity -= 0.1
+                
+                # Increase difficulty
+                if self.score < 15:
+                    # Normal difficulty before 15 points
+                    self.pipe_velocity -= 0.08
+                else:
+                    # MUCH TOUGHER difficulty after 15 points
+                    # Significantly increase speed
+                    self.pipe_velocity -= 0.25
+                    
+                    # Aggressively increase spawn rate for extra challenge
+                    if self.pipe_spawn_interval > 60:
+                        self.pipe_spawn_interval -= 2
         
         # Remove off-screen pipes
         self.pipes = [p for p in self.pipes if not p.off_screen()]
     
-    def draw_heart(self, surface, x, y, size=30):
+    def draw_heart(self, surface, x, y, size=30, is_broken=False):
         """Draw a pixel art heart shape like retro games"""
         # Pixel size for the heart
         pix = size // 8
@@ -301,17 +351,35 @@ class Game:
             (3, 4), (4, 4),
         ]
         
-        # Draw black outline
-        for px, py in heart_pixels_black:
-            pygame.draw.rect(surface, (0, 0, 0), (x + px * pix, y + py * pix, pix, pix))
-        
-        # Draw red fill
-        for px, py in heart_pixels_red:
-            pygame.draw.rect(surface, RED, (x + px * pix, y + py * pix, pix, pix))
-        
-        # Draw white cross
-        for px, py in heart_pixels_white:
-            pygame.draw.rect(surface, WHITE, (x + px * pix, y + py * pix, pix, pix))
+        if is_broken:
+            # Draw broken heart (X pattern)
+            # Draw black outline
+            for px, py in heart_pixels_black:
+                pygame.draw.rect(surface, (100, 100, 100), (x + px * pix, y + py * pix, pix, pix))
+            
+            # Draw gray fill for broken look
+            for px, py in heart_pixels_red:
+                pygame.draw.rect(surface, (128, 128, 128), (x + px * pix, y + py * pix, pix, pix))
+            
+            # Draw X pattern
+            line_width = 3
+            heart_center_x = x + size // 2
+            heart_center_y = y + size // 2
+            pygame.draw.line(surface, RED, (x, y), (x + size, y + size), line_width)
+            pygame.draw.line(surface, RED, (x + size, y), (x, y + size), line_width)
+        else:
+            # Draw normal heart
+            # Draw black outline
+            for px, py in heart_pixels_black:
+                pygame.draw.rect(surface, (0, 0, 0), (x + px * pix, y + py * pix, pix, pix))
+            
+            # Draw red fill
+            for px, py in heart_pixels_red:
+                pygame.draw.rect(surface, RED, (x + px * pix, y + py * pix, pix, pix))
+            
+            # Draw white cross
+            for px, py in heart_pixels_white:
+                pygame.draw.rect(surface, WHITE, (x + px * pix, y + py * pix, pix, pix))
     
     def draw(self, surface):
         """Draw all game elements"""
@@ -338,8 +406,9 @@ class Game:
         surface.blit(name_text, (10, 20))
         
         # Draw lives as hearts
-        for i in range(self.lives):
-            self.draw_heart(surface, SCREEN_WIDTH - 50 - (i * 40), 40, 30)
+        for i in range(self.total_lives):
+            is_broken = i >= self.lives
+            self.draw_heart(surface, SCREEN_WIDTH - 50 - (i * 40), 40, 30, is_broken=is_broken)
     
     def draw_name_input_screen(self, surface, input_text, cursor_visible):
         """Draw name input screen"""
@@ -427,39 +496,64 @@ class Game:
         
         # Game Over text
         game_over_text = font_large.render("GAME OVER", True, RED)
-        surface.blit(game_over_text, (SCREEN_WIDTH // 2 - game_over_text.get_width() // 2, 50))
+        surface.blit(game_over_text, (SCREEN_WIDTH // 2 - game_over_text.get_width() // 2, 30))
         
         # Player name
         player_text = font_medium.render(f"Player: {self.player_name}", True, WHITE)
-        surface.blit(player_text, (SCREEN_WIDTH // 2 - player_text.get_width() // 2, 130))
+        surface.blit(player_text, (SCREEN_WIDTH // 2 - player_text.get_width() // 2, 100))
         
         # Final score
         score_text = font_medium.render(f"SCORE: {self.score}", True, WHITE)
-        surface.blit(score_text, (SCREEN_WIDTH // 2 - score_text.get_width() // 2, 190))
+        surface.blit(score_text, (SCREEN_WIDTH // 2 - score_text.get_width() // 2, 155))
         
         # Show remaining lives or game ended
         if not self.game_ended:
-            remaining_text = font_small.render(f"Lives Left: {self.lives}", True, YELLOW)
-            surface.blit(remaining_text, (SCREEN_WIDTH // 2 - remaining_text.get_width() // 2, 250))
+            # Show broken hearts and remaining hearts
+            broken_text = font_small.render("Lives Lost:", True, WHITE)
+            surface.blit(broken_text, (SCREEN_WIDTH // 2 - 150, 220))
+            for i in range(self.total_lives - self.lives):
+                self.draw_heart(surface, SCREEN_WIDTH // 2 - 120 + (i * 45), 215, 25, is_broken=True)
+            
+            remaining_text = font_small.render("Lives Left:", True, YELLOW)
+            surface.blit(remaining_text, (SCREEN_WIDTH // 2 - 150, 280))
+            for i in range(self.lives):
+                self.draw_heart(surface, SCREEN_WIDTH // 2 - 120 + (i * 45), 275, 25, is_broken=False)
             
             continue_text = font_small.render("Press SPACE to Continue", True, YELLOW)
-            surface.blit(continue_text, (SCREEN_WIDTH // 2 - continue_text.get_width() // 2, 310))
+            surface.blit(continue_text, (SCREEN_WIDTH // 2 - continue_text.get_width() // 2, 340))
         else:
-            # Game completely ended
-            game_ended_text = font_small.render("NO MORE LIVES!", True, RED)
-            surface.blit(game_ended_text, (SCREEN_WIDTH // 2 - game_ended_text.get_width() // 2, 250))
+            # Game completely ended - show all hearts broken
+            all_broken_text = font_small.render("All Lives Lost!", True, RED)
+            surface.blit(all_broken_text, (SCREEN_WIDTH // 2 - all_broken_text.get_width() // 2, 220))
             
-            # Check if new high score
+            # Show all broken hearts
+            for i in range(self.total_lives):
+                self.draw_heart(surface, SCREEN_WIDTH // 2 - 80 + (i * 50), 270, 30, is_broken=True)
+            
+            # High scores section
+            high_scores_label = font_medium.render("HIGH SCORES", True, YELLOW)
+            surface.blit(high_scores_label, (SCREEN_WIDTH // 2 - high_scores_label.get_width() // 2, 340))
+            
+            # Check if new high score and update
             is_high_score = score_manager.add_score(self.player_name, self.score)
             if is_high_score and self.score > 0:
                 high_score_text = font_small.render("NEW HIGH SCORE! 🎉", True, YELLOW)
-                surface.blit(high_score_text, (SCREEN_WIDTH // 2 - high_score_text.get_width() // 2, 310))
+                surface.blit(high_score_text, (SCREEN_WIDTH // 2 - high_score_text.get_width() // 2, 390))
+                y_offset = 430
+            else:
+                y_offset = 390
+            
+            # Show last high scores
+            top_scores = score_manager.get_top_scores(3)
+            for i, (name, score) in enumerate(top_scores):
+                score_line = font_tiny.render(f"{i+1}. {name}: {score}", True, WHITE)
+                surface.blit(score_line, (SCREEN_WIDTH // 2 - score_line.get_width() // 2, y_offset + (i * 25)))
             
             restart_text = font_small.render("Press R to Restart", True, YELLOW)
-            surface.blit(restart_text, (SCREEN_WIDTH // 2 - restart_text.get_width() // 2, 370))
+            surface.blit(restart_text, (SCREEN_WIDTH // 2 - restart_text.get_width() // 2, 480))
         
         esc_text = font_small.render("Press ESC to Menu", True, YELLOW)
-        surface.blit(esc_text, (SCREEN_WIDTH // 2 - esc_text.get_width() // 2, 430))
+        surface.blit(esc_text, (SCREEN_WIDTH // 2 - esc_text.get_width() // 2, 550))
 
 
 # ==================== MAIN GAME LOOP ====================

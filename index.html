@@ -430,30 +430,37 @@
 
     <!-- Name Input Modal -->
     <div id="nameModal" class="modal show">
-        <div class="modal-content">
-            <h1>🐧 FLAPPY PENGUIN 🐧</h1>
-            <p style="font-size: 20px; margin-bottom: 30px;">Welcome to the ultimate penguin flying adventure!</p>
-            <p>Enter Your Name to Start</p>
-            <input type="text" id="nameInput" placeholder="Your name" maxlength="15" autocomplete="off">
+        <div class="modal-content" style="text-align: center; background: linear-gradient(135deg, #00FF88 0%, #00CCFF 100%); border: 5px solid #FFD700;">
+            <h1 style="font-size: 64px; color: #FF0000; text-shadow: 3px 3px 0px #000;">🐧 FLAPPY PENGUIN 🐧</h1>
+            <p style="font-size: 18px; margin: 20px 0; color: #000;">Play the addictive penguin flying game!</p>
+            
+            <p style="font-size: 16px; color: #333; margin-top: 30px;">Your Name (Optional)</p>
+            <input type="text" id="nameInput" placeholder="Enter your name or Skip" maxlength="15" autocomplete="off" style="font-size: 18px; padding: 12px; width: 80%; max-width: 300px;">
             <br>
-            <button onclick="startGame()">🚀 Start Game</button>
+            
+            <button onclick="setPlayerName()" style="background: #00DD00; color: #000; font-size: 24px; padding: 20px 60px; margin-top: 20px; border: 4px solid #000; border-radius: 15px; font-weight: bold;cursor: pointer;">
+            ▶️ START PLAYING NOW ▶️
+            </button>
+            
+            <p style="font-size: 12px; color: #555; margin-top: 20px; opacity: 0.7;">Or just press ENTER to start</p>
         </div>
     </div>
 
     <!-- Start Screen Modal -->
     <div id="startModal" class="modal">
-        <div class="modal-content">
-            <h1>🐧 FLAPPY PENGUIN 🐧</h1>
-            <p id="welcomeText" style="font-size: 20px; margin-bottom: 20px;">Welcome!</p>
-            <h2>🏆 HIGH SCORES</h2>
-            <div class="leaderboard" id="leaderboard">
+        <div class="modal-content" style="text-align: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <h1 style="font-size: 48px; color: #FFD700;">🏆 HIGH SCORES 🏆</h1>
+            <div class="leaderboard" id="leaderboard" style="margin: 20px 0; background: rgba(255,255,255,0.95);">
                 <div class="leaderboard-item">No scores yet! Be the first!</div>
             </div>
-            <p style="margin-top: 20px; font-size: 18px; font-weight: bold;">PRESS SPACE OR ENTER TO START</p>
-            <p style="font-size: 14px; margin-top: 10px; opacity: 0.8;">🔘 TAP SCREEN or 🎮 Press SPACE/ENTER to FLAP</p>
-            <button onclick="beginGame(); gameStarted = true;" style="background: #00FF00; color: #000; font-size: 20px; padding: 15px 40px; margin: 15px;">💚 TAP HERE TO START 💚</button>
-            <button onclick="changePlayer()">👤 Change Name</button>
-            <button onclick="window.location.reload()">❌ Quit</button>
+            
+            <button onclick="beginGameDirect()" style="background: #00FF00; color: #000; font-size: 28px; padding: 25px 80px; margin: 20px; border: 5px solid #000; border-radius: 15px; font-weight: bold; cursor: pointer;">
+            🎮 TAP TO PLAY 🎮
+            </button>
+            
+            <p style="font-size: 14px; color: #fff; margin-top: 15px;">👆 Tap screen to flap • Avoid pipes • Get high score!</p>
+            
+            <button onclick="changePlayer()" style="background: #FFD700; color: #000; font-size: 16px; padding: 10px 30px; margin: 10px; border: 3px solid #000; border-radius: 8px; cursor: pointer;">👤 Change Name</button>
         </div>
     </div>
 
@@ -662,17 +669,33 @@
         }
 
         // Game functions
+        function setPlayerName() {
+            playerName = document.getElementById('nameInput').value.trim();
+            if (playerName === '') {
+                playerName = 'Player ' + Math.floor(Math.random() * 10000);
+            }
+            document.getElementById('nameModal').classList.remove('show');
+            document.getElementById('startModal').classList.add('show');
+            gameState = 'startScreen';
+            updateLeaderboard();
+        }
+
         function startGame() {
             playerName = document.getElementById('nameInput').value.trim();
             if (playerName === '') {
-                alert('Please enter your name!');
-                return;
+                playerName = 'Player ' + Math.floor(Math.random() * 10000);
             }
             document.getElementById('nameModal').classList.remove('show');
             document.getElementById('startModal').classList.add('show');
             gameState = 'startScreen';
             updateLeaderboard();
             document.getElementById('welcomeText').textContent = `Welcome, ${playerName}!`;
+        }
+
+        function beginGameDirect() {
+            document.getElementById('startModal').classList.remove('show');
+            gameState = 'playing';
+            resetGame();
         }
 
         function changePlayer() {
@@ -901,7 +924,16 @@
 
         // Focus input on load
         window.addEventListener('load', () => {
-            document.getElementById('nameInput').focus();
+            const nameInput = document.getElementById('nameInput');
+            nameInput.focus();
+            
+            // Allow Enter key to start the game from name input
+            nameInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    setPlayerName();
+                }
+            });
         });
 
         // Game loop
