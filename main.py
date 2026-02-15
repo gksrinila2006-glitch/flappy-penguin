@@ -29,7 +29,7 @@ PIPE_VELOCITY_START = -2.5
 
 # Create display
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption("🐧 FLAPPY PENGUIN - MASTER GAME 🐧")
+pygame.display.set_caption("FLAPPY PENGUIN - MASTER GAME")
 clock = pygame.time.Clock()
 font_large = pygame.font.Font(None, 72)
 font_medium = pygame.font.Font(None, 48)
@@ -539,7 +539,7 @@ class Game:
             # Check if new high score and update
             self.is_high_score = score_manager.add_score(self.player_name, self.score)
             if self.is_high_score and self.score > 0:
-                high_score_text = font_small.render("NEW HIGH SCORE! 🎉", True, YELLOW)
+                high_score_text = font_small.render("NEW HIGH SCORE!", True, YELLOW)
                 surface.blit(high_score_text, (SCREEN_WIDTH // 2 - high_score_text.get_width() // 2, 390))
                 y_offset = 430
             else:
@@ -566,8 +566,8 @@ class Game:
         congrats_text = font_large.render("CONGRATULATIONS!", True, RED)
         surface.blit(congrats_text, (SCREEN_WIDTH // 2 - congrats_text.get_width() // 2, 50))
         
-        # Draw celebration message with emojis
-        celebration_msg = font_medium.render("🎉 NEW HIGH SCORE! 🎉", True, YELLOW)
+        # Draw celebration message
+        celebration_msg = font_medium.render("NEW HIGH SCORE!", True, YELLOW)
         surface.blit(celebration_msg, (SCREEN_WIDTH // 2 - celebration_msg.get_width() // 2, 130))
         
         # Player name in red to highlight high score achiever
@@ -579,7 +579,7 @@ class Game:
         surface.blit(score_display, (SCREEN_WIDTH // 2 - score_display.get_width() // 2, 260))
         
         # Achievement message
-        achievement_text = font_small.render("Amazing Performance! 🏆", True, BLACK)
+        achievement_text = font_small.render("Amazing Performance!", True, BLACK)
         surface.blit(achievement_text, (SCREEN_WIDTH // 2 - achievement_text.get_width() // 2, 350))
         
         # Animated pulse text
@@ -595,7 +595,7 @@ class Game:
         top_scores = score_manager.get_top_scores(3)
         y = 510
         for i, (name, score) in enumerate(top_scores, 1):
-            medal = "🥇" if i == 1 else "🥈" if i == 2 else "🥉"
+            medal = "[1]" if i == 1 else "[2]" if i == 2 else "[3]"
             score_line = font_tiny.render(f"{medal} {i}. {name}: {score}", True, BLACK)
             surface.blit(score_line, (SCREEN_WIDTH // 2 - score_line.get_width() // 2, y))
             y += 25
