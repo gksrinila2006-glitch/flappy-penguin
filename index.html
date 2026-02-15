@@ -186,7 +186,8 @@
             <div class="leaderboard" id="leaderboard">
                 <div class="leaderboard-item">No scores yet!</div>
             </div>
-            <p>PRESS SPACE TO START</p>
+            <p>PRESS SPACE (desktop) OR TAP START (mobile)</p>
+            <button id="startBtn" onclick="beginGame()">START</button>
             <button onclick="changePlayer()">Change Name</button>
             <button onclick="window.location.reload()">Quit</button>
         </div>
@@ -409,6 +410,11 @@
             document.getElementById('startModal').classList.remove('show');
             gameState = 'playing';
             resetGame();
+            // mark game as started so update() will run and pipes spawn
+            gameStarted = true;
+            gameStartedBySpace = true;
+            // ensure spawn counter reset
+            pipeSpawnCounter = 0;
         }
 
         function resetGame() {
@@ -426,7 +432,8 @@
             pipes = [];
             score = 0;
             pipeVelocity = PIPE_VELOCITY_START;
-            let pipeSpawnCounter = 0;
+            // reset global spawn counter (do not redeclare with let)
+            pipeSpawnCounter = 0;
         }
 
         function continueGame() {
@@ -631,6 +638,21 @@
                 gameStarted = true;
             }
         });
+
+        // Also respond to touchstart for faster mobile response
+        canvas.addEventListener('touchstart', (evt) => {
+            evt.preventDefault();
+            if (gameState === 'startScreen' && !gameStartedBySpace) {
+                gameStartedBySpace = true;
+                beginGame();
+                gameStarted = true;
+            } else if (gameState === 'playing' && gameStarted) {
+                bird.flap();
+            } else if (gameState === 'gameOver' && !gameEnded) {
+                continueGame();
+                gameStarted = true;
+            }
+        }, {passive: false});
 
         // Game loop
         function gameLoop() {
