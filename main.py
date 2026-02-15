@@ -510,16 +510,13 @@ class Game:
         
         # Show remaining lives or game ended
         if not self.game_ended:
-            # Show broken hearts and remaining hearts
-            broken_text = font_small.render("Lives Lost:", True, WHITE)
-            surface.blit(broken_text, (SCREEN_WIDTH // 2 - 150, 220))
-            for i in range(self.total_lives - self.lives):
-                self.draw_heart(surface, SCREEN_WIDTH // 2 - 120 + (i * 45), 215, 25, is_broken=True)
+            # Show lives lost and remaining lives as numbers
+            lives_lost_count = self.total_lives - self.lives
+            broken_text = font_small.render(f"Lives Lost: {lives_lost_count}", True, WHITE)
+            surface.blit(broken_text, (SCREEN_WIDTH // 2 - broken_text.get_width() // 2, 220))
             
-            remaining_text = font_small.render("Lives Left:", True, YELLOW)
-            surface.blit(remaining_text, (SCREEN_WIDTH // 2 - 150, 280))
-            for i in range(self.lives):
-                self.draw_heart(surface, SCREEN_WIDTH // 2 - 120 + (i * 45), 275, 25, is_broken=False)
+            remaining_text = font_small.render(f"Lives Left: {self.lives}", True, YELLOW)
+            surface.blit(remaining_text, (SCREEN_WIDTH // 2 - remaining_text.get_width() // 2, 280))
             
             continue_text = font_small.render("Press SPACE to Continue", True, YELLOW)
             surface.blit(continue_text, (SCREEN_WIDTH // 2 - continue_text.get_width() // 2, 340))
