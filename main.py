@@ -559,30 +559,8 @@ class Game:
     
     def draw_celebration_screen(self, surface):
         """Draw celebration screen for new high score"""
-        # Animated background with gradient effect
+        # Animated background
         surface.fill(LIGHT_BLUE)
-        
-        # Create celebration overlay with stars
-        overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
-        overlay.set_alpha(50)
-        overlay.fill((255, 215, 0))  # Gold color
-        surface.blit(overlay, (0, 0))
-        
-        # Draw animated stars and celebration elements
-        import math
-        angle = (self.celebration_counter % 360) * math.pi / 180
-        
-        # Draw spinning stars around the center
-        star_distance = 80
-        num_stars = 8
-        for i in range(num_stars):
-            star_angle = angle + (2 * math.pi * i / num_stars)
-            star_x = SCREEN_WIDTH // 2 + int(star_distance * math.cos(star_angle))
-            star_y = SCREEN_HEIGHT // 2 - 50 + int(star_distance * math.sin(star_angle))
-            # Draw star as asterisk
-            star_text = font_large.render("⭐", True, YELLOW)
-            star_rect = star_text.get_rect(center=(star_x, star_y))
-            surface.blit(star_text, star_rect)
         
         # Draw "CONGRATULATIONS" text
         congrats_text = font_large.render("CONGRATULATIONS!", True, RED)
@@ -592,8 +570,8 @@ class Game:
         celebration_msg = font_medium.render("🎉 NEW HIGH SCORE! 🎉", True, YELLOW)
         surface.blit(celebration_msg, (SCREEN_WIDTH // 2 - celebration_msg.get_width() // 2, 130))
         
-        # Player name
-        player_text = font_medium.render(f"Player: {self.player_name}", True, BLACK)
+        # Player name in red to highlight high score achiever
+        player_text = font_medium.render(f"Player: {self.player_name}", True, RED)
         surface.blit(player_text, (SCREEN_WIDTH // 2 - player_text.get_width() // 2, 200))
         
         # Achieved score in big text
@@ -605,6 +583,7 @@ class Game:
         surface.blit(achievement_text, (SCREEN_WIDTH // 2 - achievement_text.get_width() // 2, 350))
         
         # Animated pulse text
+        import math
         pulse_size = int(5 * math.sin(self.celebration_counter * 0.1))
         pulse_text = font_small.render("Press SPACE to Continue", True, (0, 150, 0))
         surface.blit(pulse_text, (SCREEN_WIDTH // 2 - pulse_text.get_width() // 2, 420 + pulse_size))
