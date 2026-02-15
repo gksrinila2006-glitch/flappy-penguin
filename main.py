@@ -417,7 +417,7 @@ class Game:
         surface.fill(LIGHT_BLUE)
         
         # Title
-        title = font_large.render("FLAPPY PENGUIN", True, RED)
+        title = font_large.render("PENGUIN-RUSH", True, RED)
         surface.blit(title, (SCREEN_WIDTH // 2 - title.get_width() // 2, 50))
         
         # Instructions
@@ -449,7 +449,7 @@ class Game:
         surface.fill(LIGHT_BLUE)
         
         # Title
-        title = font_large.render("FLAPPY PENGUIN", True, RED)
+        title = font_large.render("PENGUIN-RUSH", True, RED)
         surface.blit(title, (SCREEN_WIDTH // 2 - title.get_width() // 2, 20))
         
         # Welcome message
@@ -472,7 +472,7 @@ class Game:
             surface.blit(no_scores, (SCREEN_WIDTH // 2 - no_scores.get_width() // 2, y))
         
         # Start instructions
-        start_text = font_small.render("PRESS SPACE TO START", True, YELLOW)
+        start_text = font_small.render("PRESS SPACE TO START", True, RED)
         surface.blit(start_text, (SCREEN_WIDTH // 2 - start_text.get_width() // 2, 480))
         
         # Other controls
@@ -518,7 +518,7 @@ class Game:
             remaining_text = font_small.render(f"Lives Left: {self.lives}", True, YELLOW)
             surface.blit(remaining_text, (SCREEN_WIDTH // 2 - remaining_text.get_width() // 2, 280))
             
-            continue_text = font_small.render("Press SPACE to Continue", True, YELLOW)
+            continue_text = font_small.render("Press SPACE to Continue", True, RED)
             surface.blit(continue_text, (SCREEN_WIDTH // 2 - continue_text.get_width() // 2, 340))
         else:
             # Game completely ended - show all hearts broken
@@ -582,7 +582,7 @@ class Game:
         # Animated pulse text
         import math
         pulse_size = int(5 * math.sin(self.celebration_counter * 0.1))
-        pulse_text = font_small.render("Press SPACE to Continue", True, (0, 150, 0))
+        pulse_text = font_small.render("Press SPACE to Continue", True, RED)
         surface.blit(pulse_text, (SCREEN_WIDTH // 2 - pulse_text.get_width() // 2, 420 + pulse_size))
         
         # Draw top scores
