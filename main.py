@@ -228,6 +228,8 @@ class Game:
         self.game_ended = False
         self.heart_break_animation = False
         self.heart_break_timer = 0
+        self.is_high_score = False  # Track if this is a high score
+        self.celebration_counter = 0  # Animation counter for celebration
         self.reset()
     
     def reset(self):
@@ -535,8 +537,8 @@ class Game:
             surface.blit(high_scores_label, (SCREEN_WIDTH // 2 - high_scores_label.get_width() // 2, 340))
             
             # Check if new high score and update
-            is_high_score = score_manager.add_score(self.player_name, self.score)
-            if is_high_score and self.score > 0:
+            self.is_high_score = score_manager.add_score(self.player_name, self.score)
+            if self.is_high_score and self.score > 0:
                 high_score_text = font_small.render("NEW HIGH SCORE! 🎉", True, YELLOW)
                 surface.blit(high_score_text, (SCREEN_WIDTH // 2 - high_score_text.get_width() // 2, 390))
                 y_offset = 430
@@ -554,6 +556,72 @@ class Game:
         
         esc_text = font_small.render("Press ESC to Menu", True, YELLOW)
         surface.blit(esc_text, (SCREEN_WIDTH // 2 - esc_text.get_width() // 2, 550))
+    
+    def draw_celebration_screen(self, surface):
+        """Draw celebration screen for new high score"""
+        # Animated background with gradient effect
+        surface.fill(LIGHT_BLUE)
+        
+        # Create celebration overlay with stars
+        overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
+        overlay.set_alpha(50)
+        overlay.fill((255, 215, 0))  # Gold color
+        surface.blit(overlay, (0, 0))
+        
+        # Draw animated stars and celebration elements
+        import math
+        angle = (self.celebration_counter % 360) * math.pi / 180
+        
+        # Draw spinning stars around the center
+        star_distance = 80
+        num_stars = 8
+        for i in range(num_stars):
+            star_angle = angle + (2 * math.pi * i / num_stars)
+            star_x = SCREEN_WIDTH // 2 + int(star_distance * math.cos(star_angle))
+            star_y = SCREEN_HEIGHT // 2 - 50 + int(star_distance * math.sin(star_angle))
+            # Draw star as asterisk
+            star_text = font_large.render("⭐", True, YELLOW)
+            star_rect = star_text.get_rect(center=(star_x, star_y))
+            surface.blit(star_text, star_rect)
+        
+        # Draw "CONGRATULATIONS" text
+        congrats_text = font_large.render("CONGRATULATIONS!", True, RED)
+        surface.blit(congrats_text, (SCREEN_WIDTH // 2 - congrats_text.get_width() // 2, 50))
+        
+        # Draw celebration message with emojis
+        celebration_msg = font_medium.render("🎉 NEW HIGH SCORE! 🎉", True, YELLOW)
+        surface.blit(celebration_msg, (SCREEN_WIDTH // 2 - celebration_msg.get_width() // 2, 130))
+        
+        # Player name
+        player_text = font_medium.render(f"Player: {self.player_name}", True, BLACK)
+        surface.blit(player_text, (SCREEN_WIDTH // 2 - player_text.get_width() // 2, 200))
+        
+        # Achieved score in big text
+        score_display = font_large.render(str(self.score), True, RED)
+        surface.blit(score_display, (SCREEN_WIDTH // 2 - score_display.get_width() // 2, 260))
+        
+        # Achievement message
+        achievement_text = font_small.render("Amazing Performance! 🏆", True, BLACK)
+        surface.blit(achievement_text, (SCREEN_WIDTH // 2 - achievement_text.get_width() // 2, 350))
+        
+        # Animated pulse text
+        pulse_size = int(5 * math.sin(self.celebration_counter * 0.1))
+        pulse_text = font_small.render("Press SPACE to Continue", True, (0, 150, 0))
+        surface.blit(pulse_text, (SCREEN_WIDTH // 2 - pulse_text.get_width() // 2, 420 + pulse_size))
+        
+        # Draw top scores
+        top_scores_text = font_small.render("YOUR TOP SCORES", True, BLACK)
+        surface.blit(top_scores_text, (SCREEN_WIDTH // 2 - top_scores_text.get_width() // 2, 480))
+        
+        top_scores = score_manager.get_top_scores(3)
+        y = 510
+        for i, (name, score) in enumerate(top_scores, 1):
+            medal = "🥇" if i == 1 else "🥈" if i == 2 else "🥉"
+            score_line = font_tiny.render(f"{medal} {i}. {name}: {score}", True, BLACK)
+            surface.blit(score_line, (SCREEN_WIDTH // 2 - score_line.get_width() // 2, y))
+            y += 25
+        
+        pygame.display.flip()
 
 
 # ==================== MAIN GAME LOOP ====================
@@ -561,7 +629,7 @@ def main():
     """Main game loop"""
     game = Game()
     running = True
-    state = "name_input"  # States: name_input, start_screen, playing, game_over
+    state = "name_input"  # States: name_input, start_screen, playing, game_over, celebration
     input_text = ""
     cursor_blink = 0
     
@@ -569,6 +637,10 @@ def main():
         clock.tick(FPS)
         cursor_visible = (cursor_blink // 10) % 2 == 0
         cursor_blink += 1
+        
+        # Animate celebration
+        if state == "celebration":
+            game.celebration_counter += 1
         
         # Handle events
         for event in pygame.event.get():
@@ -608,7 +680,7 @@ def main():
                         game.game_started = True
                 
                 # Game over state
-                if state == "game_over":
+                elif state == "game_over":
                     if event.key == pygame.K_SPACE and not game.game_ended:
                         # Continue with another life
                         game.bird = Bird(SCREEN_WIDTH // 4, SCREEN_HEIGHT // 2)
@@ -619,6 +691,18 @@ def main():
                     elif event.key == pygame.K_r and game.game_ended:
                         game.lives = 3
                         game.game_ended = False
+                        game.is_high_score = False
+                        game.reset()
+                        state = "start_screen"
+                    elif event.key == pygame.K_ESCAPE:
+                        state = "start_screen"
+                
+                # Celebration state
+                elif state == "celebration":
+                    if event.key == pygame.K_SPACE:
+                        game.lives = 3
+                        game.game_ended = False
+                        game.is_high_score = False
                         game.reset()
                         state = "start_screen"
                     elif event.key == pygame.K_ESCAPE:
@@ -630,6 +714,10 @@ def main():
         # Check if game is over
         if game.game_over and state == "playing":
             state = "game_over"
+        
+        # Check if should show celebration
+        if state == "game_over" and game.game_ended and game.is_high_score:
+            state = "celebration"
         
         # Draw
         if state == "name_input":
@@ -643,6 +731,8 @@ def main():
             game.draw(screen)
             game.draw_game_over_screen(screen)
             pygame.display.flip()
+        elif state == "celebration":
+            game.draw_celebration_screen(screen)
     
     pygame.quit()
     sys.exit()
