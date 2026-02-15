@@ -169,7 +169,16 @@
     <!-- Name Input Modal -->
     <div id="nameModal" class="modal show">
         <div class="modal-content">
-            <h1>FLAPPY PENGUIN</h1>
+            <h1><span class="penguin-icon" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="28" height="28">
+                    <ellipse cx="32" cy="38" rx="16" ry="14" fill="#000" />
+                    <ellipse cx="32" cy="38" rx="10" ry="9" fill="#fff" />
+                    <circle cx="32" cy="18" r="9" fill="#000" />
+                    <circle cx="28" cy="16" r="2" fill="#fff" />
+                    <circle cx="36" cy="16" r="2" fill="#fff" />
+                    <polygon points="32,20 36,24 28,24" fill="#FF8C00" />
+                </svg>
+            </span>FLAPPY PENGUIN</h1>
             <p>Enter Your Name</p>
             <input type="text" id="nameInput" placeholder="Your name" maxlength="15" autofocus>
             <br>
@@ -180,7 +189,16 @@
     <!-- Start Screen Modal -->
     <div id="startModal" class="modal">
         <div class="modal-content">
-            <h1>FLAPPY PENGUIN</h1>
+            <h1><span class="penguin-icon" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="28" height="28">
+                    <ellipse cx="32" cy="38" rx="16" ry="14" fill="#000" />
+                    <ellipse cx="32" cy="38" rx="10" ry="9" fill="#fff" />
+                    <circle cx="32" cy="18" r="9" fill="#000" />
+                    <circle cx="28" cy="16" r="2" fill="#fff" />
+                    <circle cx="36" cy="16" r="2" fill="#fff" />
+                    <polygon points="32,20 36,24 28,24" fill="#FF8C00" />
+                </svg>
+            </span>FLAPPY PENGUIN</h1>
             <p id="welcomeText">Welcome!</p>
             <h2>HIGH SCORES</h2>
             <div class="leaderboard" id="leaderboard">
@@ -581,7 +599,7 @@
 
             const isNewHighScore = saveScore(playerName, score);
             if (isNewHighScore && score > 0) {
-                document.getElementById('highScoreMessage').innerHTML = '<span style="color: red; font-size: 20px; font-weight: bold;">NEW HIGH SCORE!</span>';
+                document.getElementById('highScoreMessage').innerHTML = '<span style="color: red; font-size: 20px; font-weight: bold;">🥇 NEW HIGH SCORE! 🥇</span>';
             } else {
                 document.getElementById('highScoreMessage').innerHTML = '';
             }
