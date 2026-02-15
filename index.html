@@ -239,12 +239,12 @@
         let lives = 3;
         let gameEnded = false;
 
-        // Game physics
-        const GRAVITY = 0.2;
-        const FLAP_STRENGTH = -6;
+        // Game physics (slower/mobile-friendly)
+        const GRAVITY = 0.06;
+        const FLAP_STRENGTH = -3.2;
         const PIPE_GAP = 160;
         const PIPE_WIDTH = 52;
-        const PIPE_VELOCITY_START = -2.5;
+        const PIPE_VELOCITY_START = -1.8;
 
         // Bird object
         let bird = {

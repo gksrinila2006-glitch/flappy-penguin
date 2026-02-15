@@ -21,11 +21,11 @@ GREEN = (34, 139, 34)
 LIGHT_BLUE = (135, 206, 235)
 
 # Physics constants
-GRAVITY = 0.1
-FLAP_STRENGTH = -4
+GRAVITY = 0.06
+FLAP_STRENGTH = -3.2
 PIPE_GAP = 160
 PIPE_WIDTH = 52
-PIPE_VELOCITY_START = -2.5
+PIPE_VELOCITY_START = -1.8
 
 # Create display
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
