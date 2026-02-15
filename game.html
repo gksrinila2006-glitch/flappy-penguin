@@ -169,9 +169,9 @@
     <!-- Name Input Modal -->
     <div id="nameModal" class="modal show">
         <div class="modal-content">
-            <h1>🐧 FLAPPY PENGUIN 🐧</h1>
+            <h1>FLAPPY PENGUIN</h1>
             <p>Enter Your Name</p>
-            <input type="text" id="nameInput" placeholder="Your name" maxlength="15">
+            <input type="text" id="nameInput" placeholder="Your name" maxlength="15" autofocus>
             <br>
             <button onclick="startGame()">Start Game</button>
         </div>
@@ -180,7 +180,7 @@
     <!-- Start Screen Modal -->
     <div id="startModal" class="modal">
         <div class="modal-content">
-            <h1>🐧 FLAPPY PENGUIN 🐧</h1>
+            <h1>FLAPPY PENGUIN</h1>
             <p id="welcomeText">Welcome!</p>
             <h2>HIGH SCORES</h2>
             <div class="leaderboard" id="leaderboard">
@@ -505,12 +505,8 @@
                 document.getElementById('scoreDisplay').textContent = score;
                 document.getElementById('playerName').textContent = `Player: ${playerName}`;
 
-                // Draw hearts
-                let heartHTML = '';
-                for (let i = 0; i < lives; i++) {
-                    heartHTML += '❤️ ';
-                }
-                document.getElementById('livesDisplay').innerHTML = heartHTML;
+                // Display lives count
+                document.getElementById('livesDisplay').textContent = `Lives: ${lives}`;
             }
         }
 
@@ -554,7 +550,15 @@
                     if (!pipe.scored && pipe.x + pipe.width < bird.x) {
                         pipe.scored = true;
                         score++;
-                        pipeVelocity -= 0.1;
+                        
+                        // Increase difficulty
+                        if (score < 15) {
+                            // Normal difficulty before 15 points
+                            pipeVelocity -= 0.08;
+                        } else {
+                            // MUCH TOUGHER difficulty after 15 points
+                            pipeVelocity -= 0.25;
+                        }
                     }
                 });
 
@@ -570,7 +574,7 @@
 
             const isNewHighScore = saveScore(playerName, score);
             if (isNewHighScore && score > 0) {
-                document.getElementById('highScoreMessage').innerHTML = '<span style="color: gold; font-size: 20px;">NEW HIGH SCORE! 🎉</span>';
+                document.getElementById('highScoreMessage').innerHTML = '<span style="color: red; font-size: 20px; font-weight: bold;">NEW HIGH SCORE!</span>';
             } else {
                 document.getElementById('highScoreMessage').innerHTML = '';
             }
@@ -580,6 +584,13 @@
 
         // Keyboard events
         let gameStartedBySpace = false;
+
+        // Handle Enter key for name input
+        document.getElementById('nameInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                startGame();
+            }
+        });
 
         document.addEventListener('keydown', (e) => {
             if (e.code === 'Space') {
