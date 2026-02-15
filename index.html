@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🐧 Flappy Penguin - Play Online</title>
+    <title>🐧 Flappy Penguin - Master Game 🐧</title>
     <style>
         * {
             margin: 0;
@@ -11,67 +11,22 @@
             box-sizing: border-box;
         }
 
-        :root {
-            --primary-color: #667eea;
-            --secondary-color: #764ba2;
-            --accent-color: #FFD700;
-            --danger-color: #DC143C;
-        }
-
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        header {
-            background: rgba(0, 0, 0, 0.3);
-            color: white;
-            padding: 20px;
-            text-align: center;
-            border-bottom: 3px solid var(--accent-color);
-        }
-
-        header h1 {
-            font-size: 48px;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-        }
-
-        header p {
-            font-size: 18px;
-            opacity: 0.9;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 40px 20px;
-            flex: 1;
-            width: 100%;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 40px;
-            align-items: center;
-        }
-
-        .game-section {
             display: flex;
             justify-content: center;
             align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: Arial, sans-serif;
         }
 
         #gameContainer {
             position: relative;
             width: 500px;
             height: 600px;
-            border: 8px solid #fff;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            border: 5px solid #333;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
             background: #87CEEB;
-            border-radius: 10px;
-            overflow: hidden;
         }
 
         canvas {
@@ -88,9 +43,6 @@
             font-weight: bold;
             color: black;
             z-index: 10;
-            background: rgba(255, 255, 255, 0.8);
-            padding: 8px 15px;
-            border-radius: 5px;
         }
 
         .score {
@@ -102,9 +54,6 @@
             font-weight: bold;
             color: black;
             z-index: 10;
-            background: rgba(255, 255, 255, 0.8);
-            padding: 8px 20px;
-            border-radius: 5px;
         }
 
         .lives {
@@ -113,78 +62,6 @@
             right: 20px;
             font-size: 24px;
             z-index: 10;
-            background: rgba(255, 255, 255, 0.8);
-            padding: 8px 15px;
-            border-radius: 5px;
-        }
-
-        .info-section {
-            color: white;
-        }
-
-        .info-section h2 {
-            font-size: 36px;
-            margin-bottom: 20px;
-            color: var(--accent-color);
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-        }
-
-        .info-section p {
-            font-size: 16px;
-            line-height: 1.8;
-            margin-bottom: 20px;
-            opacity: 0.95;
-        }
-
-        .controls {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 30px;
-            border-left: 4px solid var(--accent-color);
-        }
-
-        .controls h3 {
-            font-size: 20px;
-            margin-bottom: 15px;
-            color: var(--accent-color);
-        }
-
-        .controls p {
-            margin-bottom: 8px;
-            font-size: 15px;
-        }
-
-        .features {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 20px;
-            border-radius: 8px;
-            border-left: 4px solid var(--accent-color);
-        }
-
-        .features h3 {
-            font-size: 20px;
-            margin-bottom: 15px;
-            color: var(--accent-color);
-        }
-
-        .feature-list {
-            list-style: none;
-        }
-
-        .feature-list li {
-            margin-bottom: 10px;
-            font-size: 15px;
-            padding-left: 25px;
-            position: relative;
-        }
-
-        .feature-list li:before {
-            content: "✓";
-            position: absolute;
-            left: 0;
-            color: var(--accent-color);
-            font-weight: bold;
         }
 
         .modal {
@@ -195,7 +72,7 @@
             top: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
+            background-color: rgba(0,0,0,0.7);
             justify-content: center;
             align-items: center;
         }
@@ -205,22 +82,19 @@
         }
 
         .modal-content {
-            background: linear-gradient(135deg, #87CEEB 0%, #87CEEB 100%);
+            background-color: #87CEEB;
             padding: 40px;
-            border-radius: 15px;
+            border-radius: 10px;
             text-align: center;
-            border: 4px solid #333;
+            border: 3px solid #333;
             max-width: 90%;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
         .modal h1 {
             font-size: 48px;
-            color: var(--danger-color);
+            color: #DC143C;
             margin-bottom: 20px;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
         }
 
         .modal h2 {
@@ -236,118 +110,42 @@
         }
 
         .modal input {
-            padding: 12px 20px;
+            padding: 10px 20px;
             font-size: 18px;
             width: 100%;
             max-width: 300px;
             margin-bottom: 15px;
             border: 2px solid #333;
             border-radius: 5px;
-            font-family: Arial, sans-serif;
         }
 
         .modal button {
             padding: 12px 30px;
             font-size: 16px;
-            background-color: var(--accent-color);
+            background-color: #FFD700;
             border: 2px solid #333;
             border-radius: 5px;
             cursor: pointer;
             margin: 10px;
             font-weight: bold;
-            transition: all 0.3s ease;
         }
 
         .modal button:hover {
             background-color: #FFC700;
-            transform: scale(1.05);
         }
 
         .leaderboard {
             text-align: left;
             margin: 20px 0;
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(255,255,255,0.8);
             padding: 15px;
             border-radius: 5px;
-            max-height: 200px;
-            overflow-y: auto;
         }
 
         .leaderboard-item {
-            font-size: 16px;
-            padding: 8px 0;
+            font-size: 14px;
+            padding: 5px 0;
             color: #333;
-            border-bottom: 1px solid #ddd;
-        }
-
-        .leaderboard-item:last-child {
-            border-bottom: none;
-        }
-
-        footer {
-            background: rgba(0, 0, 0, 0.5);
-            color: white;
-            text-align: center;
-            padding: 20px;
-            margin-top: 40px;
-            border-top: 2px solid var(--accent-color);
-        }
-
-        footer p {
-            margin-bottom: 10px;
-        }
-
-        .share-section {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 30px;
-            border-left: 4px solid var(--accent-color);
-            text-align: center;
-        }
-
-        .share-section h3 {
-            color: var(--accent-color);
-            margin-bottom: 15px;
-        }
-
-        .share-section a {
-            display: inline-block;
-            background: var(--accent-color);
-            color: #333;
-            padding: 10px 20px;
-            border-radius: 5px;
-            text-decoration: none;
-            margin: 10px;
-            font-weight: bold;
-            transition: all 0.3s ease;
-        }
-
-        .share-section a:hover {
-            transform: scale(1.05);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-        }
-
-        @media (max-width: 1024px) {
-            .container {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
-
-            #gameContainer {
-                width: 100%;
-                max-width: 500px;
-                height: auto;
-                aspect-ratio: 500 / 600;
-            }
-
-            header h1 {
-                font-size: 36px;
-            }
-
-            .info-section h2 {
-                font-size: 28px;
-            }
         }
 
         @media (max-width: 600px) {
@@ -357,110 +155,40 @@
                 max-width: 500px;
                 max-height: 600px;
             }
-
-            header h1 {
-                font-size: 28px;
-            }
-
-            .container {
-                padding: 20px 10px;
-            }
-
-            .info-section h2 {
-                font-size: 24px;
-            }
-
-            .modal-content {
-                padding: 20px;
-            }
-
-            .modal h1 {
-                font-size: 36px;
-            }
         }
     </style>
 </head>
 <body>
-    <header>
-        <h1>🐧 FLAPPY PENGUIN 🐧</h1>
-        <p>Play the addictive penguin flying game online!</p>
-    </header>
-
-    <div class="container">
-        <div class="game-section">
-            <div id="gameContainer">
-                <canvas id="gameCanvas"></canvas>
-                <div class="info" id="playerName">Player: -</div>
-                <div class="score" id="scoreDisplay">0</div>
-                <div class="lives" id="livesDisplay"></div>
-            </div>
-        </div>
-
-        <div class="info-section">
-            <h2>Welcome to Flappy Penguin!</h2>
-            
-            <div class="controls">
-                <h3>🎮 How to Play</h3>
-                <p><strong>SPACE</strong> or <strong>ENTER</strong> - Flap to fly</p>
-                <p><strong>CLICK/TAP</strong> - Flap (Mobile)</p>
-                <p><strong>R</strong> - Restart game</p>
-                <p><strong>ESC</strong> - Back to menu</p>
-            </div>
-
-            <div class="features">
-                <h3>✨ Features</h3>
-                <ul class="feature-list">
-                    <li>3 Lives system with hearts</li>
-                    <li>High score leaderboard</li>
-                    <li>Player name tracking</li>
-                    <li>Progressive difficulty</li>
-                    <li>Mobile & desktop friendly</li>
-                    <li>No installation needed</li>
-                </ul>
-            </div>
-
-            <div class="share-section">
-                <h3>📱 Share This Game</h3>
-                <p>Share your score with friends!</p>
-                <a href="https://twitter.com/intent/tweet?text=I%27m%20playing%20Flappy%20Penguin!%20Can%20you%20beat%20my%20score%3F%20🐧" target="_blank">Tweet It</a>
-                <a href="#" onclick="copyLink()">Copy Link</a>
-            </div>
-        </div>
+    <div id="gameContainer">
+        <canvas id="gameCanvas"></canvas>
+        <div class="info" id="playerName">Player: -</div>
+        <div class="score" id="scoreDisplay">0</div>
+        <div class="lives" id="livesDisplay"></div>
     </div>
 
     <!-- Name Input Modal -->
     <div id="nameModal" class="modal show">
-        <div class="modal-content" style="text-align: center; background: linear-gradient(135deg, #00FF88 0%, #00CCFF 100%); border: 5px solid #FFD700;">
-            <h1 style="font-size: 64px; color: #FF0000; text-shadow: 3px 3px 0px #000;">🐧 FLAPPY PENGUIN 🐧</h1>
-            <p style="font-size: 18px; margin: 20px 0; color: #000;">Play the addictive penguin flying game!</p>
-            
-            <p style="font-size: 16px; color: #333; margin-top: 30px;">Your Name (Optional)</p>
-            <input type="text" id="nameInput" placeholder="Enter your name or Skip" maxlength="15" autocomplete="off" style="font-size: 18px; padding: 12px; width: 80%; max-width: 300px;">
+        <div class="modal-content">
+            <h1>FLAPPY PENGUIN</h1>
+            <p>Enter Your Name</p>
+            <input type="text" id="nameInput" placeholder="Your name" maxlength="15" autofocus>
             <br>
-            
-            <button onclick="setPlayerName()" style="background: #00DD00; color: #000; font-size: 24px; padding: 20px 60px; margin-top: 20px; border: 4px solid #000; border-radius: 15px; font-weight: bold;cursor: pointer;">
-            ▶️ START PLAYING NOW ▶️
-            </button>
-            
-            <p style="font-size: 12px; color: #555; margin-top: 20px; opacity: 0.7;">Or just press ENTER to start</p>
+            <button onclick="startGame()">Start Game</button>
         </div>
     </div>
 
     <!-- Start Screen Modal -->
     <div id="startModal" class="modal">
-        <div class="modal-content" style="text-align: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-            <h1 style="font-size: 48px; color: #FFD700;">🏆 HIGH SCORES 🏆</h1>
-            <div class="leaderboard" id="leaderboard" style="margin: 20px 0; background: rgba(255,255,255,0.95);">
-                <div class="leaderboard-item">No scores yet! Be the first!</div>
+        <div class="modal-content">
+            <h1>FLAPPY PENGUIN</h1>
+            <p id="welcomeText">Welcome!</p>
+            <h2>HIGH SCORES</h2>
+            <div class="leaderboard" id="leaderboard">
+                <div class="leaderboard-item">No scores yet!</div>
             </div>
-            
-            <button onclick="beginGameDirect()" style="background: #00FF00; color: #000; font-size: 28px; padding: 25px 80px; margin: 20px; border: 5px solid #000; border-radius: 15px; font-weight: bold; cursor: pointer;">
-            🎮 TAP TO PLAY 🎮
-            </button>
-            
-            <p style="font-size: 14px; color: #fff; margin-top: 15px;">👆 Tap screen to flap • Avoid pipes • Get high score!</p>
-            
-            <button onclick="changePlayer()" style="background: #FFD700; color: #000; font-size: 16px; padding: 10px 30px; margin: 10px; border: 3px solid #000; border-radius: 8px; cursor: pointer;">👤 Change Name</button>
+            <p>PRESS SPACE TO START</p>
+            <button onclick="changePlayer()">Change Name</button>
+            <button onclick="window.location.reload()">Quit</button>
         </div>
     </div>
 
@@ -468,19 +196,14 @@
     <div id="gameOverModal" class="modal">
         <div class="modal-content">
             <h1>GAME OVER</h1>
-            <p id="finalScoreText" style="font-size: 24px; color: #333; margin-bottom: 10px;">Score: 0</p>
-            <p id="livesLeftText" style="font-size: 18px; color: #333; margin-bottom: 20px;">Lives Left: 0</p>
+            <p id="finalScoreText">Score: 0</p>
+            <p id="livesLeftText">Lives Left: 0</p>
             <p id="highScoreMessage"></p>
-            <button id="continueBtn" onclick="continueGame()" style="display:none;">▶️ Continue (SPACE/ENTER)</button>
-            <button id="restartBtn" onclick="restartGame()" style="display:none;">🔄 Restart (R)</button>
-            <button onclick="goToMenu()">🏠 Back to Menu (ESC)</button>
+            <button id="continueBtn" onclick="continueGame()" style="display:none;">Continue (SPACE)</button>
+            <button id="restartBtn" onclick="restartGame()" style="display:none;">Restart (R)</button>
+            <button onclick="goToMenu()">Back to Menu (ESC)</button>
         </div>
     </div>
-
-    <footer>
-        <p>🐧 Flappy Penguin - Created with ❤️</p>
-        <p>© 2026 - All Rights Reserved | Play, Share & Compete!</p>
-    </footer>
 
     <script>
         const canvas = document.getElementById('gameCanvas');
@@ -491,7 +214,7 @@
         canvas.height = 600;
 
         // Game variables
-        let gameState = 'nameInput';
+        let gameState = 'nameInput'; // nameInput, startScreen, playing, gameOver
         let playerName = '';
         let score = 0;
         let lives = 3;
@@ -653,49 +376,26 @@
             const lb = document.getElementById('leaderboard');
             const topScores = getTopScores();
             if (topScores.length === 0) {
-                lb.innerHTML = '<div class="leaderboard-item">No scores yet! Be the first!</div>';
+                lb.innerHTML = '<div class="leaderboard-item">No scores yet!</div>';
             } else {
                 lb.innerHTML = topScores.map((s, i) => 
-                    `<div class="leaderboard-item">🥇 ${i + 1}. ${s[0]}: ${s[1]} points</div>`
+                    `<div class="leaderboard-item">${i + 1}. ${s[0]}: ${s[1]}</div>`
                 ).join('');
             }
         }
 
-        function copyLink() {
-            const link = window.location.href;
-            navigator.clipboard.writeText(link).then(() => {
-                alert('Link copied to clipboard! 📋');
-            });
-        }
-
         // Game functions
-        function setPlayerName() {
-            playerName = document.getElementById('nameInput').value.trim();
-            if (playerName === '') {
-                playerName = 'Player ' + Math.floor(Math.random() * 10000);
-            }
-            document.getElementById('nameModal').classList.remove('show');
-            document.getElementById('startModal').classList.add('show');
-            gameState = 'startScreen';
-            updateLeaderboard();
-        }
-
         function startGame() {
             playerName = document.getElementById('nameInput').value.trim();
             if (playerName === '') {
-                playerName = 'Player ' + Math.floor(Math.random() * 10000);
+                alert('Please enter a name!');
+                return;
             }
             document.getElementById('nameModal').classList.remove('show');
             document.getElementById('startModal').classList.add('show');
             gameState = 'startScreen';
             updateLeaderboard();
             document.getElementById('welcomeText').textContent = `Welcome, ${playerName}!`;
-        }
-
-        function beginGameDirect() {
-            document.getElementById('startModal').classList.remove('show');
-            gameState = 'playing';
-            resetGame();
         }
 
         function changePlayer() {
@@ -726,7 +426,7 @@
             pipes = [];
             score = 0;
             pipeVelocity = PIPE_VELOCITY_START;
-            pipeSpawnCounter = 0;
+            let pipeSpawnCounter = 0;
         }
 
         function continueGame() {
@@ -756,6 +456,7 @@
             updateLeaderboard();
         }
 
+        // Draw functions
         function drawHeart(x, y, size = 30) {
             const pix = size / 8;
             const blackPixels = [
@@ -781,9 +482,11 @@
         }
 
         function draw() {
+            // Background
             ctx.fillStyle = '#87CEEB';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+            // Ground
             ctx.fillStyle = '#8B4513';
             ctx.fillRect(0, canvas.height - 50, canvas.width, 50);
             ctx.strokeStyle = '#000';
@@ -793,18 +496,17 @@
             ctx.lineTo(canvas.width, canvas.height - 50);
             ctx.stroke();
 
+            // Draw game elements
             if (gameState === 'playing') {
                 pipes.forEach(pipe => pipe.draw());
                 bird.draw();
 
+                // Update score display
                 document.getElementById('scoreDisplay').textContent = score;
                 document.getElementById('playerName').textContent = `Player: ${playerName}`;
 
-                let heartHTML = '';
-                for (let i = 0; i < lives; i++) {
-                    heartHTML += '❤️ ';
-                }
-                document.getElementById('livesDisplay').innerHTML = heartHTML;
+                // Display lives count
+                document.getElementById('livesDisplay').textContent = `Lives: ${lives}`;
             }
         }
 
@@ -848,7 +550,15 @@
                     if (!pipe.scored && pipe.x + pipe.width < bird.x) {
                         pipe.scored = true;
                         score++;
-                        pipeVelocity -= 0.1;
+                        
+                        // Increase difficulty
+                        if (score < 15) {
+                            // Normal difficulty before 15 points
+                            pipeVelocity -= 0.08;
+                        } else {
+                            // MUCH TOUGHER difficulty after 15 points
+                            pipeVelocity -= 0.25;
+                        }
                     }
                 });
 
@@ -864,7 +574,7 @@
 
             const isNewHighScore = saveScore(playerName, score);
             if (isNewHighScore && score > 0) {
-                document.getElementById('highScoreMessage').innerHTML = '<span style="color: gold; font-size: 20px; font-weight: bold;">⭐ NEW HIGH SCORE! 🎉</span>';
+                document.getElementById('highScoreMessage').innerHTML = '<span style="color: red; font-size: 20px; font-weight: bold;">NEW HIGH SCORE!</span>';
             } else {
                 document.getElementById('highScoreMessage').innerHTML = '';
             }
@@ -875,9 +585,15 @@
         // Keyboard events
         let gameStartedBySpace = false;
 
+        // Handle Enter key for name input
+        document.getElementById('nameInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                startGame();
+            }
+        });
+
         document.addEventListener('keydown', (e) => {
-            // Accept both Space and Enter keys
-            if (e.code === 'Space' || e.code === 'Enter' || e.key === 'Enter') {
+            if (e.code === 'Space') {
                 e.preventDefault();
                 if (gameState === 'startScreen' && !gameStartedBySpace) {
                     gameStartedBySpace = true;
@@ -903,7 +619,7 @@
         });
 
         // Touch controls for mobile
-        const handleTap = () => {
+        canvas.addEventListener('click', () => {
             if (gameState === 'startScreen' && !gameStartedBySpace) {
                 gameStartedBySpace = true;
                 beginGame();
@@ -914,26 +630,6 @@
                 continueGame();
                 gameStarted = true;
             }
-        };
-        
-        canvas.addEventListener('click', handleTap);
-        canvas.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            handleTap();
-        });
-
-        // Focus input on load
-        window.addEventListener('load', () => {
-            const nameInput = document.getElementById('nameInput');
-            nameInput.focus();
-            
-            // Allow Enter key to start the game from name input
-            nameInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    setPlayerName();
-                }
-            });
         });
 
         // Game loop
