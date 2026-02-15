@@ -187,6 +187,7 @@
                 <div class="leaderboard-item">No scores yet!</div>
             </div>
             <p>PRESS SPACE TO START</p>
+            <button id="startBtn" onclick="beginGame()">START</button>
             <button onclick="changePlayer()">Change Name</button>
             <button onclick="window.location.reload()">Quit</button>
         </div>
@@ -409,6 +410,11 @@
             document.getElementById('startModal').classList.remove('show');
             gameState = 'playing';
             resetGame();
+            // mark game as started so update() will run and pipes spawn
+            gameStarted = true;
+            gameStartedBySpace = true;
+            // ensure spawn counter reset
+            pipeSpawnCounter = 0;
         }
 
         function resetGame() {
@@ -426,7 +432,8 @@
             pipes = [];
             score = 0;
             pipeVelocity = PIPE_VELOCITY_START;
-            let pipeSpawnCounter = 0;
+            // reset global spawn counter (do not redeclare with let)
+            pipeSpawnCounter = 0;
         }
 
         function continueGame() {
