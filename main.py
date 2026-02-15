@@ -403,9 +403,9 @@ class Game:
         score_text = font_medium.render(str(self.score), True, BLACK)
         surface.blit(score_text, (SCREEN_WIDTH // 2 - score_text.get_width() // 2, 20))
         
-        # Draw player name
+        # Draw player name (moved lower to avoid overlapping the centered score)
         name_text = font_small.render(f"Player: {self.player_name}", True, BLACK)
-        surface.blit(name_text, (10, 20))
+        surface.blit(name_text, (10, 60))
         
         # Draw lives as hearts
         for i in range(self.total_lives):
