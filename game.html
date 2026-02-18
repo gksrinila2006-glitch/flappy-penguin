@@ -91,7 +91,6 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
-        .modal h1 {
             font-size: 48px;
             color: #DC143C;
             margin-bottom: 20px;
@@ -100,6 +99,7 @@
         .modal h2 {
             font-size: 36px;
             color: #333;
+        .modal-content {
             margin-bottom: 15px;
         }
 
@@ -155,6 +155,17 @@
                 max-width: 500px;
                 max-height: 600px;
             }
+                /* Player name in top left, smaller font */
+                #playerName {
+                    top: 10px;
+                    left: 10px;
+                    font-size: 14px;
+                    font-weight: normal;
+                    color: #222;
+                }
+                #scoreDisplay {
+                    font-size: 28px;
+                }
         }
     </style>
 </head>
@@ -239,10 +250,14 @@
         let lives = 3;
         let gameEnded = false;
 
-        // Game physics (slower/mobile-friendly)
-        const GRAVITY = 0.06;
+        // Game physics
+        const GRAVITY = 0.12;
         const FLAP_STRENGTH = -3.2;
-        const PIPE_GAP = 160;
+        let PIPE_GAP = 160;
+        // Adjust pipe gap for mobile
+        if (window.innerWidth <= 600) {
+            PIPE_GAP = 200; // medium gap for mobile
+        }
         const PIPE_WIDTH = 52;
         const PIPE_VELOCITY_START = -1.8;
 
@@ -425,14 +440,54 @@
         }
 
         function beginGame() {
-            document.getElementById('startModal').classList.remove('show');
-            gameState = 'playing';
             resetGame();
             // mark game as started so update() will run and pipes spawn
             gameStarted = true;
             gameStartedBySpace = true;
             // ensure spawn counter reset
             pipeSpawnCounter = 0;
+            document.getElementById('startModal').classList.remove('show');
+            resetGame();
+            // On mobile, freeze bird until tap
+            if (window.innerWidth <= 600) {
+                gameState = 'waitingTap';
+                gameStarted = false;
+                // Listen for tap to start
+                canvas.addEventListener('touchstart', handleMobileStart, { once: true });
+            } else {
+                gameState = 'playing';
+                gameStarted = true;
+                gameStartedBySpace = true;
+                pipeSpawnCounter = 0;
+            }
+            document.getElementById('startModal').classList.remove('show');
+            resetGame();
+            if (window.innerWidth <= 600) {
+                gameState = 'waitingTap';
+                gameStarted = false;
+                canvas.addEventListener('touchstart', handleMobileStart, { once: true });
+            } else {
+                gameState = 'playing';
+                gameStarted = true;
+                gameStartedBySpace = true;
+                pipeSpawnCounter = 0;
+            }
+        }
+
+        // Desktop: allow space/tab to start game
+        document.addEventListener('keydown', function(e) {
+            if (gameState === 'startScreen' && window.innerWidth > 600 && (e.code === 'Space' || e.code === 'Tab')) {
+                beginGame();
+            }
+        });
+        }
+
+        function handleMobileStart() {
+            gameState = 'playing';
+            gameStarted = true;
+            gameStartedBySpace = true;
+            pipeSpawnCounter = 0;
+        }
         }
 
         function resetGame() {
@@ -540,7 +595,7 @@
         let gameStarted = false;
 
         function update() {
-            if (gameState === 'playing' && gameStarted) {
+            if ((gameState === 'playing' && gameStarted) || gameState === 'waitingTap') {
                 bird.update();
 
                 if (!bird.alive) {
