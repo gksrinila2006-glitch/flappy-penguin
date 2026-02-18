@@ -426,10 +426,10 @@
                 return;
             }
             document.getElementById('nameModal').classList.remove('show');
-            document.getElementById('startModal').classList.add('show');
-            gameState = 'startScreen';
             updateLeaderboard();
             document.getElementById('welcomeText').textContent = `Welcome, ${playerName}!`;
+            // Start the game immediately
+            beginGame();
         }
 
         function changePlayer() {
